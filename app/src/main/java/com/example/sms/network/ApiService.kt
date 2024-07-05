@@ -6,10 +6,13 @@ import retrofit2.http.*
 
 interface ApiService {
     @POST("api/users/add")
-    fun registerUser(@Body user: UserModel): Call<UserModel>
+    fun registerUser(@Body user: UserModel): Call<Boolean>
 
     @POST("api/users/login")
-    fun loginUser(@Body user: UserModel): Call<UserModel>
+    fun loginUser(
+        @Query("login") login: String,
+        @Query("password") password: String
+    ): Call<Boolean>
 
     @POST("api/items/additemdefinition")
     fun addItemDefinition(@Body item: ItemDefinitionModel): Call<ItemDefinitionModel>
