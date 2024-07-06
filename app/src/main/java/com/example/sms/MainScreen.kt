@@ -33,7 +33,7 @@ fun MainScreen() {
                     )
                     BottomNavigationItem(
                         icon = { Icon(Icons.Default.List, contentDescription = null) },
-                        label = { Text("Add Definition") },
+                        label = { Text("Add Def") },
                         selected = screenState == ScreenState.ADD_DEFINITION,
                         onClick = { screenState = ScreenState.ADD_DEFINITION },
                         selectedContentColor = Color.White,
@@ -75,8 +75,8 @@ fun MainScreen() {
                 )
                 ScreenState.REGISTER -> RegisterScreen(onLoginClick = { screenState = ScreenState.LOGIN })
                 ScreenState.HOME -> HomeScreen()
-                ScreenState.ADD_DEFINITION -> Text(text = "TODO: Add Item Definition Screen")
-                ScreenState.ADD_ITEM -> Text(text = "TODO: Add Item Screen")
+                ScreenState.ADD_DEFINITION -> AddItemDefinitionScreen(onBackClick = { screenState = ScreenState.HOME })
+                ScreenState.ADD_ITEM -> AddItemScreen(onBackClick = { screenState = ScreenState.HOME })
                 ScreenState.EDIT_ITEM -> Text(text = "TODO: Edit Item Screen")
             }
         }

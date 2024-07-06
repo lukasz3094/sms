@@ -15,6 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sms.models.UserModel
 import com.example.sms.network.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,22 +63,25 @@ fun RegisterScreen(onLoginClick: () -> Unit) {
             Button(
                 onClick = {
                     val user = UserModel(0, login, password, "test", "test", false)
-                    RetrofitClient.instance.registerUser(user).enqueue(object : Callback<Boolean> {
-                        override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                            if (response.isSuccessful) {
-                                message = "Registration successful"
-                            } else {
-                                val errorBody = response.errorBody()?.string()
-                                message = "Registration failed: $errorBody"
-                                Log.e("RegisterScreen", "Error: $errorBody")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = RetrofitClient.instance.registerUser(user).execute()
+                            withContext(Dispatchers.Main) {
+                                if (response.isSuccessful) {
+                                    message = "Registration successful"
+                                } else {
+                                    val errorBody = response.errorBody()?.string()
+                                    message = "Registration failed: $errorBody"
+                                    Log.e("RegisterScreen", "Error: $errorBody")
+                                }
+                            }
+                        } catch (t: Throwable) {
+                            withContext(Dispatchers.Main) {
+                                message = "Registration failed: ${t.message}"
+                                Log.e("RegisterScreen", "Failure: ${t.message}")
                             }
                         }
-
-                        override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                            message = "Registration failed: ${t.message}"
-                            Log.e("RegisterScreen", "Failure: ${t.message}")
-                        }
-                    })
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,3 +103,4 @@ fun RegisterScreen(onLoginClick: () -> Unit) {
         }
     }
 }
+

@@ -73,6 +73,9 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.1.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.1.1")
 
+    implementation("com.google.accompanist:accompanist-permissions:0.21.1-beta")
+    implementation("androidx.activity:activity-compose:1.3.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

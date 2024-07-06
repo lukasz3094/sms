@@ -14,6 +14,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sms.network.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -57,23 +61,26 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onRegisterClick: () -> Unit) {
             )
             Button(
                 onClick = {
-                    RetrofitClient.instance.loginUser(login, password).enqueue(object : Callback<Boolean> {
-                        override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                            if (response.isSuccessful) {
-                                message = "Login successful"
-                                onLoginSuccess()
-                            } else {
-                                val errorBody = response.errorBody()?.string()
-                                message = "Login failed: $errorBody"
-                                Log.e("LoginScreen", "Error: $errorBody")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val response = RetrofitClient.instance.loginUser(login, password).execute()
+                            withContext(Dispatchers.Main) {
+                                if (response.isSuccessful) {
+                                    message = "Login successful"
+                                    onLoginSuccess()
+                                } else {
+                                    val errorBody = response.errorBody()?.string()
+                                    message = "Login failed: $errorBody"
+                                    Log.e("LoginScreen", "Error: $errorBody")
+                                }
+                            }
+                        } catch (t: Throwable) {
+                            withContext(Dispatchers.Main) {
+                                message = "Login failed: ${t.message}"
+                                Log.e("LoginScreen", "Failure: ${t.message}")
                             }
                         }
-
-                        override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                            message = "Login failed: ${t.message}"
-                            Log.e("LoginScreen", "Failure: ${t.message}")
-                        }
-                    })
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -95,3 +102,4 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onRegisterClick: () -> Unit) {
         }
     }
 }
+
